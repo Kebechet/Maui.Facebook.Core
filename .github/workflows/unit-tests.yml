@@ -45,13 +45,19 @@ jobs:
       - name: Pack Android binding into the local feed
         # The wrapper references the binding versions from this branch, which may not be published to
         # nuget.org yet; pack them from source so restore always resolves the in-repo version through the
-        # `local` source in nuget.config. Kept as its own step so a pack failure fails here instead of
+        # surfacing later as a confusing NU1301. Build first, then pack --no-build: the bindings set
+        # GeneratePackageOnBuild, and a bare `dotnet pack` on such a project runs Pack before the compile on a
+        # clean runner and dies with NU5026 (assembly not found) - locally it only works because bin/ is warm.
         # surfacing later as a confusing NU1301.
-        run: dotnet pack src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+        run: |
+          dotnet build src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
 
       - name: Pack iOS binding into the local feed
         # bgen runs on Windows; the xcframeworks ride along as resources.zip. Only running iOS needs a Mac.
-        run: dotnet pack src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+        run: |
+          dotnet build src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
 
       - name: Run DemoHarness.Tests
         run: dotnet test tests/DemoHarness.Tests/DemoHarness.Tests.csproj -c ${{ env.BUILD_CONFIGURATION }}

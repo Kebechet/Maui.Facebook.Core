@@ -41,9 +41,12 @@ jobs:
         run: dotnet workload install maui-android maui-ios maui-maccatalyst maui-windows --ignore-failed-sources --version ${{ env.DOTNET_SDK_VERSION }}
 
       - name: Pack bindings into the local feed
+        # build + pack --no-build rather than a bare pack: see unit-tests.yml (NU5026 with GeneratePackageOnBuild).
         run: |
-          dotnet pack src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
-          dotnet pack src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+          dotnet build src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
+          dotnet build src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
 
       - name: Build demo (android-x64, self-contained)
         # EmbedAssembliesIntoApk makes the APK installable with plain `adb install`, which is how the
@@ -89,12 +92,17 @@ jobs:
         run: dotnet workload install ios maui-ios maui-maccatalyst maui-android --ignore-failed-sources --version ${{ env.DOTNET_SDK_VERSION }}
 
       - name: Pack iOS binding into the local feed
-        run: dotnet pack src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+        # build + pack --no-build rather than a bare pack: see unit-tests.yml (NU5026 with GeneratePackageOnBuild).
+        run: |
+          dotnet build src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
 
       - name: Pack Android binding into the local feed
         # The wrapper's restore evaluates its Android TFM too, so the Android binding version referenced
         # by this branch has to be resolvable even on the iOS job.
-        run: dotnet pack src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+        run: |
+          dotnet build src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }}
+          dotnet pack  src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} --no-build -o local-nuget
 
       - name: Build demo (iOS simulator)
         # Links the app against all three xcframeworks - the step that would catch a wrong selector, a
