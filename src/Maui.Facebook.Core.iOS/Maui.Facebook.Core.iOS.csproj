@@ -20,8 +20,8 @@
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>18.1.1.0</Version>
-    <PackageReleaseNotes>18.1.1.0: initial curated binding of native Facebook iOS SDK 18.1.1 (FBSDKCoreKit + FBSDKCoreKit_Basics + FBAEMKit). Changelog: https://github.com/facebook/facebook-ios-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <Version>18.1.0.0</Version>
+    <PackageReleaseNotes>18.1.0.0: bumped native Facebook iOS SDK from 18.1.1 to 18.1.0. Upstream: Added: Limited Login Refresh: Limited Login sessions now refresh automatically when the app returns to the foreground, keeping Profile.current and AuthenticationToken.current up to date without prompting the user to re-authenticate. Tune the minimum interval between automatic refreshes via Settings.shared.limitedLoginAutoRefreshInterval (default: 24 hours), or trigger an on-demand refresh with LoginManager.refreshLimitedLogin(from:fallbackPolicy:completion:). The refresh strategy is configurable via RefreshFallbackPolicy (.automatic, .directOnly, .silentOnly, .explicitOnly). Rolling out gradually. Diagnostic warning at initialization when the App ID or Client Token is missing or empty (#3639). Changed: ShareDialog in .automatic mode now prefers the native share dialog over the deprecated SLComposeViewController. Fixed: Photo and video sharing incorrectly reported as cancelled in native mode (#2267). Fixed crashes from concurrent access in SensitiveParamsManager (#3626) and during server-configuration archiving. Fixed a main-thread hang when persisting time-spent data on backgrounding (#2349). Fixed automatic access-token refresh not firing on its timer. Fixed user data for zip and dateOfBirth being stored as a hash of the empty string (#2219). The SDK's Swift Package no longer injects its own Xcode schemes into consuming projects (#2515). Changelog: https://github.com/facebook/facebook-ios-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
