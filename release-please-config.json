@@ -8,6 +8,7 @@
     "src/Maui.Facebook.Core": {
       "release-type": "simple",
       "package-name": "Kebechet.Maui.Facebook.Core",
+      "initial-version": "1.0.0",
       "extra-files": [
         {
           "type": "generic",
