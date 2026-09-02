@@ -207,6 +207,11 @@ fi
 git push --force origin "HEAD:refs/heads/${BRANCH}"
 
 # --- 5. Labels (idempotent) ---------------------------------------------------------
+# Every label the PR gets is created here, so a fresh repository works on the first run
+# (the first bump on this repo failed with "could not add label: 'android' not found").
+gh label create android        --color 3DDC84 --description "Android binding" --force >/dev/null
+gh label create ios            --color 0A84FF --description "iOS binding" --force >/dev/null
+gh label create dependencies   --color 0366D6 --description "Pull requests that update a dependency" --force >/dev/null
 gh label create bump           --color 0E8A16 --description "Native Facebook SDK bump produced by TryBumpAndroid / TryBumpIOS" --force >/dev/null
 gh label create claude-fixed   --color 5319E7 --description "Binding sources were repaired by Claude Code - review them" --force >/dev/null
 gh label create binding-broken --color B60205 --description "The binding does not build against the new native SDK" --force >/dev/null
