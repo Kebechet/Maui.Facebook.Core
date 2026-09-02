@@ -120,7 +120,7 @@ It is scriptable, so a device run needs no tapping:
 ```bash
 # Android
 adb shell am start -n com.kebechet.demoapp/.MainActivity --es appId <id> --es clientToken <token> --ez autoRun true
-adb logcat -d | grep "[Harness]"
+adb logcat -d | grep "\[Harness\]"
 
 # iOS (from a Mac; the app must be built and installed with a development identity first)
 xcrun devicectl device process launch --console --device <udid> com.kebechet.demoapp -- --appId <id> --autoRun true
