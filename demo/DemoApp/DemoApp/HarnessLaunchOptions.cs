@@ -2,8 +2,8 @@ namespace DemoApp;
 
 /// <summary>
 /// Credentials and the auto-run flag handed to the harness page. Filled from Android intent extras
-/// (see <c>Platforms/Android/MainActivity.cs</c>); on other platforms they stay at their defaults and the
-/// page is driven by hand.
+/// (<c>Platforms/Android/MainActivity.cs</c>) or iOS process arguments (<c>Platforms/iOS/AppDelegate.cs</c>);
+/// elsewhere they stay at their defaults and the page is driven by hand.
 /// </summary>
 public static class HarnessLaunchOptions
 {
