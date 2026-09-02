@@ -106,7 +106,7 @@ for kit in "${KITS[@]}"; do
   MANIFESTS_FOUND=0
   while IFS= read -r framework; do
     if [[ ! -f "$framework/PrivacyInfo.xcprivacy" ]]; then
-      echo "ERROR: $framework has no PrivacyInfo.xcprivacy - FBSDKCoreKit is on Apple's list of SDKs that must ship one, and App Store review rejects the upload without it (ITMS-91061)" >&2
+      echo "ERROR: $framework has no PrivacyInfo.xcprivacy - the Facebook iOS SDK kits are on Apple's list of SDKs that must ship one, and App Store review rejects the upload without $kit's (ITMS-91061)" >&2
       exit 1
     fi
     echo "    ok: ${framework#nativelib/}/PrivacyInfo.xcprivacy"
