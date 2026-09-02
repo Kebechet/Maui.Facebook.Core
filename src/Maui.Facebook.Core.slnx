@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj" />
+  <Project Path="Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj" />
+  <Project Path="Maui.Facebook.Core/Maui.Facebook.Core.csproj" />
+</Solution>

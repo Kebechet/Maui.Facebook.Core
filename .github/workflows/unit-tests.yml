@@ -1,0 +1,57 @@
+name: unit-tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SDK_VERSION: 10.0.102
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        # The Android binding pack below runs the Java binding generator over the AAR, so it needs the
+        # same JDK 17 publish-android.yml sets up.
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - name: Create global.json to specify .NET version
+        run: |
+          echo '{"sdk":{"version":"${{ env.DOTNET_SDK_VERSION }}"}}' > ${{ github.workspace }}/global.json
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install MAUI workloads
+        # The wrapper multi-targets net10.0;-android;-ios;-maccatalyst (+ -windows on Windows hosts), and
+        # restore evaluates every TFM even though the tests only build the plain net10.0 target.
+        run: dotnet workload install maui-android maui-ios maui-maccatalyst maui-windows --ignore-failed-sources --version ${{ env.DOTNET_SDK_VERSION }}
+
+      - name: Pack Android binding into the local feed
+        # The wrapper references the binding versions from this branch, which may not be published to
+        # nuget.org yet; pack them from source so restore always resolves the in-repo version through the
+        # `local` source in nuget.config. Kept as its own step so a pack failure fails here instead of
+        # surfacing later as a confusing NU1301.
+        run: dotnet pack src/Maui.Facebook.Core.Android/Maui.Facebook.Core.Android.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+
+      - name: Pack iOS binding into the local feed
+        # bgen runs on Windows; the xcframeworks ride along as resources.zip. Only running iOS needs a Mac.
+        run: dotnet pack src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj -c ${{ env.BUILD_CONFIGURATION }} -o local-nuget
+
+      - name: Run DemoHarness.Tests
+        run: dotnet test tests/DemoHarness.Tests/DemoHarness.Tests.csproj -c ${{ env.BUILD_CONFIGURATION }}

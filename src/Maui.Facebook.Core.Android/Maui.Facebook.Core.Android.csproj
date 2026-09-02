@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <!--facebook-core's own manifest says minSdkVersion 15; 21 is MAUI's floor and the lowest .NET for Android builds for.-->
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NugetProperties">
+    <Authors>Kebechet</Authors>
+    <IsPackable>true</IsPackable>
+    <PackageId>Kebechet.Maui.Facebook.Core.Android</PackageId>
+    <Description>Contains bindings for com.facebook.android:facebook-core from https://github.com/facebook/facebook-android-sdk (App Events, FacebookSdk settings)</Description>
+    <RepositoryUrl>https://github.com/Kebechet/Maui.Facebook.Core/tree/main/src/Maui.Facebook.Core.Android</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Kebechet/Maui.Facebook.Core/tree/main/src/Maui.Facebook.Core.Android</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageIcon>icon.png</PackageIcon>
+    <Version>18.3.0.0</Version>
+    <PackageReleaseNotes>18.3.0.0: initial binding of native Facebook Android SDK 18.3.0 (facebook-core). Changelog: https://github.com/facebook/facebook-android-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--Both AARs are downloaded from Maven Central and their POMs drive Java dependency verification,
+    so every facebook-core bump cross-checks the PackageReference list below. facebook-bolts is
+    facebook-core's own utility library, published in lockstep at the same version; it has to ship
+    inside this package because no NuGet binding for it exists.-->
+    <AndroidMavenLibrary Include="com.facebook.android:facebook-core" Version="18.3.0" />
+    <AndroidMavenLibrary Include="com.facebook.android:facebook-bolts" Version="18.3.0" Bind="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--AndroidX and Kotlin are pinned to the wave Microsoft.Maui.Core 10.0.1 itself resolves (Lifecycle 2.9.2.1):
+    newer AndroidX packages drag a newer Lifecycle and the consuming MAUI app fails restore with NU1107. Bump
+    these together with the MAUI baseline, not to "latest".-->
+    <!--JavaArtifact tells the POM verifier which Maven coordinate a package fulfils when its nuspec
+    carries no `artifact_versioned=` tag (Xamarin.Android.Binding.InstallReferrer is third-party).-->
+    <PackageReference Include="Xamarin.Android.Binding.InstallReferrer" Version="2.2.0"
+                      JavaArtifact="com.android.installreferrer:installreferrer:2.2" />
+    <PackageReference Include="Xamarin.AndroidX.Annotation" Version="1.9.1.5" />
+    <PackageReference Include="Xamarin.AndroidX.Legacy.Support.Core.Utils" Version="1.0.0.34" />
+    <PackageReference Include="Xamarin.AndroidX.Core.Core.Ktx" Version="1.17.0" />
+    <PackageReference Include="Xamarin.Kotlin.StdLib" Version="2.2.10" />
+  </ItemGroup>
+</Project>

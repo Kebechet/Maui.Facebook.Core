@@ -1,0 +1,22 @@
+﻿<metadata>
+  <!--facebook-core ships ~40 Java packages, most of them com.facebook.internal.* and
+  com.facebook.appevents.internal.* plumbing whose Kotlin-generated shapes trip the binding generator
+  (BG8xxx warnings, duplicate members, unresolvable generics). The wrapper touches two public types -
+  com.facebook.FacebookSdk and com.facebook.appevents.AppEventsLogger - so only their packages are bound;
+  the rest is still embedded in the package and reachable from the bound API at runtime, just not
+  surfaced in C#.-->
+  <remove-node path="/api/package[@name!='com.facebook' and @name!='com.facebook.appevents']"/>
+  <!--Graph API request plumbing. Both extend Java generics (AsyncTask<Void,Void,List<GraphResponse>>,
+  AbstractList<GraphRequest>) whose erased abstract members the generator cannot re-implement, so the
+  generated C# fails with CS0534/CS0115. Nothing in App Events needs them.-->
+  <remove-node path="/api/package[@name='com.facebook']/class[@name='GraphRequestAsyncTask']"/>
+  <remove-node path="/api/package[@name='com.facebook']/class[starts-with(@name,'GraphRequestBatch')]"/>
+  <remove-node path="/api/package[@name='com.facebook']/interface[starts-with(@name,'GraphRequestBatch')]"/>
+  <!--
+  This sample removes the class: android.support.v4.content.AsyncTaskLoader.LoadTask:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='AsyncTaskLoader.LoadTask']" />
+
+  This sample removes the method: android.support.v4.content.CursorLoader.loadInBackground:
+  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='CursorLoader']/method[@name='loadInBackground']" />
+  -->
+</metadata>

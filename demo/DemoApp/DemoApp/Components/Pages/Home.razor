@@ -1,0 +1,140 @@
+@page "/"
+@implements IDisposable
+@inject IFacebookCoreService FacebookCore
+@inject HarnessRunner Runner
+@inject HarnessLog Log
+
+<h1>Maui.Facebook.Core</h1>
+<p class="subtitle">On-device harness for the wrapper. Fill in your Meta app credentials and run every check.</p>
+
+<div class="card">
+    <h2>Credentials</h2>
+    <label for="appId">Facebook App ID</label>
+    <input id="appId" type="text" @bind="_appId" placeholder="your Meta app id, e.g. 123456789012345" disabled="@_isRunning" />
+    <label for="clientToken">Client Token (Meta App Dashboard → Settings → Advanced)</label>
+    <input id="clientToken" type="text" @bind="_clientToken" placeholder="32 hex characters" disabled="@_isRunning" />
+
+    <button @onclick="RunAll" disabled="@(_isRunning || string.IsNullOrWhiteSpace(_appId))">
+        @(_isRunning ? "Running…" : "Run all checks")
+    </button>
+    <button class="secondary" @onclick="ClearLog" disabled="@_isRunning">Clear log</button>
+</div>
+
+<div class="card">
+    <h2>State <button class="secondary" style="margin:0 0 0 8px;padding:4px 10px" @onclick="RefreshState" disabled="@_isRunning">Refresh</button></h2>
+    @* Rendered from a snapshot: a live read here that logged anything would re-render via Log.Changed and loop. *@
+    <dl class="kv">
+        <dt>Platform</dt><dd>@DeviceInfo.Platform @DeviceInfo.VersionString</dd>
+        <dt>Initialized</dt><dd>@_state.IsInitialized</dd>
+        <dt>SDK version</dt><dd>@(_state.SdkVersion ?? "null")</dd>
+        <dt>Anonymous ID</dt><dd>@(_state.AnonymousId ?? "null (run Initialize)")</dd>
+        <dt>User ID</dt><dd>@(_state.UserId ?? "null")</dd>
+    </dl>
+</div>
+
+@if (_results.Count > 0)
+{
+    <div class="card">
+        <h2>Checks - @HarnessFormatter.Summary(_results)</h2>
+        <ul class="checks">
+            @foreach (var result in _results)
+            {
+                <li class="@result.Status">
+                    <span class="glyph">@HarnessFormatter.Glyph(result.Status)</span>
+                    <div>
+                        <div class="check-name">@result.Name</div>
+                        @if (!string.IsNullOrEmpty(result.Summary))
+                        {
+                            <div class="check-summary">@result.Summary</div>
+                        }
+                        @if (!string.IsNullOrEmpty(result.Error))
+                        {
+                            <div class="check-error">@result.Error</div>
+                        }
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="card">
+    <h2>Log</h2>
+    <pre class="log">@string.Join('\n', Log.Lines)</pre>
+</div>
+
+@code {
+    // Prefilled from launch extras when present (see HarnessLaunchOptions), otherwise with the SatisFIT app id
+    // so a manual run needs only the client token pasted in.
+    private string _appId = HarnessLaunchOptions.AppId;
+    private string _clientToken = HarnessLaunchOptions.ClientToken;
+    private bool _isRunning;
+    private readonly List<HarnessCheckResult> _results = [];
+    private (bool IsInitialized, string? SdkVersion, string? AnonymousId, string? UserId) _state;
+
+    protected override void OnInitialized()
+    {
+        Log.Changed += OnLogChanged;
+        RefreshState();
+    }
+
+    private void RefreshState()
+    {
+        _state = (FacebookCore.IsInitialized, FacebookCore.SdkVersion, FacebookCore.AnonymousId, FacebookCore.UserId);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && HarnessLaunchOptions.ConsumeAutoRun() && !string.IsNullOrWhiteSpace(_appId))
+        {
+            await RunAll();
+        }
+    }
+
+    private async Task RunAll()
+    {
+        _isRunning = true;
+        _results.Clear();
+
+        var progress = new Progress<HarnessCheckResult>(result =>
+        {
+            var index = _results.FindIndex(x => x.Name == result.Name);
+            if (index >= 0)
+            {
+                _results[index] = result;
+            }
+            else
+            {
+                _results.Add(result);
+            }
+            InvokeAsync(StateHasChanged);
+        });
+
+        try
+        {
+            await Runner.RunAllChecksAsync(_appId.Trim(), _clientToken.Trim(), progress);
+        }
+        finally
+        {
+            _isRunning = false;
+            RefreshState();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ClearLog()
+    {
+        Log.Clear();
+        _results.Clear();
+    }
+
+    private void OnLogChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Log.Changed -= OnLogChanged;
+    }
+}

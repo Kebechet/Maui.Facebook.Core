@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="../../src/Maui.Facebook.Core/Maui.Facebook.Core.csproj" />
+  <Project Path="DemoApp.Harness/DemoApp.Harness.csproj" />
+  <Project Path="DemoApp/DemoApp.csproj">
+    <Deploy />
+  </Project>
+</Solution>

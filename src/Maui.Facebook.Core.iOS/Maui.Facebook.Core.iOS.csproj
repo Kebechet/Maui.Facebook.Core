@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>true</ImplicitUsings>
+    <IsBindingProject>true</IsBindingProject>
+    <!--FBSDKCoreKit.framework/Info.plist declares MinimumOSVersion 12.0; 12.2 is the floor the .NET iOS SDK accepts.-->
+    <SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NugetProperties">
+    <Authors>Kebechet</Authors>
+    <IsPackable>true</IsPackable>
+    <PackageId>Kebechet.Maui.Facebook.Core.iOS</PackageId>
+    <Description>Contains bindings for FBSDKCoreKit from https://github.com/facebook/facebook-ios-sdk (App Events, Settings, ApplicationDelegate)</Description>
+    <RepositoryUrl>https://github.com/Kebechet/Maui.Facebook.Core/tree/main/src/Maui.Facebook.Core.iOS</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Kebechet/Maui.Facebook.Core/tree/main/src/Maui.Facebook.Core.iOS</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageIcon>icon.png</PackageIcon>
+    <Version>18.1.1.0</Version>
+    <PackageReleaseNotes>18.1.1.0: initial curated binding of native Facebook iOS SDK 18.1.1 (FBSDKCoreKit + FBSDKCoreKit_Basics + FBAEMKit). Changelog: https://github.com/facebook/facebook-ios-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ObjcBindingApiDefinition Include="ApiDefinitions.cs" />
+    <ObjcBindingCoreSource Include="StructsAndEnums.cs" />
+  </ItemGroup>
+
+  <!--Three frameworks, one package: FBSDKCoreKit links FBSDKCoreKit_Basics and FBAEMKit at load time,
+  so an app that embeds only the first crashes on launch with an image-not-found. All three are the
+  Dynamic_XCFramework release assets of the same SDK version, with the maccatalyst slice, .swiftmodule
+  and .dSYM directories removed (Catalyst is a no-op stub in the wrapper; the other two are debug-only
+  and ~150 MB).-->
+  <ItemGroup>
+    <NativeReference Include="nativelib\FBSDKCoreKit.xcframework">
+      <Kind>Framework</Kind>
+      <Frameworks>Foundation UIKit Security CoreGraphics WebKit Accelerate CoreTelephony SafariServices AdSupport</Frameworks>
+      <WeakFrameworks>AppTrackingTransparency StoreKit</WeakFrameworks>
+      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+    <NativeReference Include="nativelib\FBSDKCoreKit_Basics.xcframework">
+      <Kind>Framework</Kind>
+      <Frameworks>Foundation</Frameworks>
+      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+    <NativeReference Include="nativelib\FBAEMKit.xcframework">
+      <Kind>Framework</Kind>
+      <Frameworks>Foundation</Frameworks>
+      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+
+</Project>
