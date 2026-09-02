@@ -12,7 +12,8 @@ env:
   #https://github.com/actions/runner-images/tree/main/images/macos
   #https://developer.apple.com/support/xcode/
   #https://xcodereleases.com/
-  XCODE_VERSION: 16.4
+  # .NET for iOS 26.2.x (the workload DOTNET_SDK_VERSION resolves) requires exactly this Xcode.
+  XCODE_VERSION: 26.2
 
   PROJECT_APP_PATH_FOLDER: src/Maui.Facebook.Core.iOS
   PROJECT_PATH: src/Maui.Facebook.Core.iOS/Maui.Facebook.Core.iOS.csproj

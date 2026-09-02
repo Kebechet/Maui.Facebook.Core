@@ -69,7 +69,8 @@ jobs:
     runs-on: macos-15
     env:
       #https://github.com/actions/runner-images/tree/main/images/macos
-      XCODE_VERSION: 16.4
+      # .NET for iOS 26.2.x (the workload DOTNET_SDK_VERSION resolves) requires exactly this Xcode.
+      XCODE_VERSION: 26.2
     steps:
       - name: Set Xcode Version
         run: |

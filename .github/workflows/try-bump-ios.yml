@@ -143,11 +143,11 @@ jobs:
           fetch-depth: 0
 
       - name: Select Xcode
-        # Same Xcode the previous pipeline built the binding with; fall back to the
-        # runner default when the image no longer ships it.
+        # .NET for iOS 26.2.x (the workload DOTNET_SDK_VERSION resolves) requires exactly this
+        # Xcode; fall back to the runner default when the image no longer ships it.
         run: |
-          if [[ -d /Applications/Xcode_16.4.app ]]; then
-            sudo xcode-select -s /Applications/Xcode_16.4.app
+          if [[ -d /Applications/Xcode_26.2.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.2.app
           fi
           xcodebuild -version
 
