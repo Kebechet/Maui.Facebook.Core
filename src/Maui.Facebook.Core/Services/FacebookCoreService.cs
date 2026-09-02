@@ -42,6 +42,7 @@ public partial class FacebookCoreService : IFacebookCoreService
     public partial void SetAdvertiserIdCollectionEnabled(bool isEnabled);
 
     /// <inheritdoc/>
+    [Obsolete("Facebook iOS SDK 17+ derives this from the App Tracking Transparency status and ignores the setter; request ATT authorization with ATTrackingManager instead. No-op on Android.")]
     public partial void SetAdvertiserTrackingEnabled(bool isEnabled);
 
     /// <inheritdoc/>

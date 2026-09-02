@@ -166,8 +166,12 @@ public sealed class HarnessRunner
 
         yield return (nameof(IFacebookCoreService.SetAdvertiserTrackingEnabled), _ =>
         {
+            // Obsolete on purpose and still exercised: the check proves the deprecated path stays a
+            // harmless no-op (iOS 17+ reads ATT itself; Android has no equivalent) rather than a throw.
+#pragma warning disable CS0618
             _facebookCore.SetAdvertiserTrackingEnabled(false);
-            return Task.FromResult("false (no-op on Android)");
+#pragma warning restore CS0618
+            return Task.FromResult("false (Android: no-op; iOS 17+: SDK reads the ATT status itself)");
         }, false);
 
         yield return (nameof(IFacebookCoreService.LogEvent), _ =>

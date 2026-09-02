@@ -80,8 +80,12 @@ _facebookCore.Flush();
 ```csharp
 _facebookCore.SetAutoLogAppEventsEnabled(consented);
 _facebookCore.SetAdvertiserIdCollectionEnabled(consented);
-_facebookCore.SetAdvertiserTrackingEnabled(attAuthorized);   // iOS only; a no-op on Android
 ```
+
+On iOS request App Tracking Transparency yourself (`ATTrackingManager.RequestTrackingAuthorization`) before the
+first events - since Facebook iOS SDK 17 the SDK reads the ATT status on its own. `SetAdvertiserTrackingEnabled`
+is kept for source compatibility with older Meta docs but is `[Obsolete]`: the bound 18.x SDK ignores the setter
+and logs a deprecation warning; Android never had an equivalent.
 
 Full API with remarks per member: [`IFacebookCoreService`](src/Maui.Facebook.Core/Services/IFacebookCoreService.cs).
 
@@ -114,9 +118,15 @@ what the wrapper **logged**: a check that logs a warning or error fails.
 It is scriptable, so a device run needs no tapping:
 
 ```bash
+# Android
 adb shell am start -n com.kebechet.demoapp/.MainActivity --es appId <id> --es clientToken <token> --ez autoRun true
-adb logcat -d | grep "\[Harness\]"
+adb logcat -d | grep "[Harness]"
+
+# iOS (from a Mac; the app must be built and installed with a development identity first)
+xcrun devicectl device process launch --console --device <udid> com.kebechet.demoapp -- --appId <id> --autoRun true
 ```
+
+Verified: all 12 checks pass on an Android 16 (API 36) emulator and on a physical iPhone 11.
 
 ⚠️ Do not pass an empty extra (`--es clientToken ""`) - the shell drops it and `am` misparses the rest.
 Leave the flag out instead; the app defaults the token to empty.

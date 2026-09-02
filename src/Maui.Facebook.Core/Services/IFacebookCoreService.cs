@@ -104,13 +104,24 @@ public interface IFacebookCoreService
     void SetAdvertiserIdCollectionEnabled(bool isEnabled);
 
     /// <summary>
-    /// iOS only: tells the SDK whether the user granted App Tracking Transparency, so events carry the
-    /// <c>advertiser_tracking_enabled</c> flag Meta uses for matching. Call after the ATT prompt resolves.
+    /// iOS only, and effectively obsolete: historically told the SDK whether the user granted App Tracking
+    /// Transparency, so events carry the <c>advertiser_tracking_enabled</c> flag Meta uses for matching.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// Since Facebook iOS SDK 17 the SDK reads the ATT status itself (<c>ATTrackingManager</c>) and the
+    /// underlying setter is deprecated: calling this on the bound 18.x SDK logs
+    /// <c>isAdvertiserTrackingEnabled setter has been deprecated and the value will be read from ATT status</c>
+    /// and changes nothing. Request tracking authorization with
+    /// <c>ATTrackingManager.RequestTrackingAuthorization</c> before the first events instead; the SDK picks the
+    /// result up on its own.
+    /// </para>
+    /// <para>
     /// Android has no equivalent - tracking permission is expressed through
     /// <see cref="SetAdvertiserIdCollectionEnabled"/> - so this is a no-op there.
+    /// </para>
     /// </remarks>
+    [Obsolete("Facebook iOS SDK 17+ derives this from the App Tracking Transparency status and ignores the setter; request ATT authorization with ATTrackingManager instead. No-op on Android.")]
     void SetAdvertiserTrackingEnabled(bool isEnabled);
 
     /// <summary>
