@@ -15,7 +15,7 @@
 #   2. Slims each xcframework the way the committed ones are: the maccatalyst slice,
 #      .swiftmodule / dSYMs / _CodeSignature directories are removed and the slice's entry
 #      is dropped from the xcframework Info.plist (177 MB -> 21 MB, and Windows can check
-#      it out).
+#      it out), then asserts every surviving framework still carries its PrivacyInfo.xcprivacy.
 #   3. Checks every [Export] selector in the hand-written ApiDefinitions.cs is still
 #      declared in the new headers - bgen never looks at headers, so a renamed selector
 #      would otherwise compile and throw at runtime. A miss is reported (selectors_ok=false)
@@ -91,9 +91,32 @@ for kit in "${KITS[@]}"; do
   fi
 
   echo "==> Slimming nativelib/$kit.xcframework"
+  # _CodeSignature goes because it cannot survive anyway: the xcframework's top-level
+  # _CodeSignature/CodeResources hashes every file under it, so dropping the maccatalyst
+  # slice, the dSYMs or the swiftmodules already invalidates Meta's signature - and so does
+  # rewriting the xcframework Info.plist below. Keeping the directories would leave a
+  # signature that no longer verifies, which is worse than none. PrivacyInfo.xcprivacy is a
+  # file, not a directory, so it is untouched by these prunes - and the check below keeps it
+  # that way, because losing it is what App Store review actually rejects (ITMS-91061).
   find "nativelib/$kit.xcframework" -mindepth 1 -maxdepth 1 -type d -name "*-maccatalyst" -prune -exec rm -rf {} +
   find "nativelib/$kit.xcframework" -type d \( -name "*.swiftmodule" -o -name "dSYMs" -o -name "*.dSYM" -o -name "_CodeSignature" \) -prune -exec rm -rf {} +
   facebook slim-xcframework-plist "$IOS_DIR/nativelib/$kit.xcframework/Info.plist"
+
+  echo "==> Verifying privacy manifests in nativelib/$kit.xcframework"
+  MANIFESTS_FOUND=0
+  while IFS= read -r framework; do
+    if [[ ! -f "$framework/PrivacyInfo.xcprivacy" ]]; then
+      echo "ERROR: $framework has no PrivacyInfo.xcprivacy - the Facebook iOS SDK kits are on Apple's list of SDKs that must ship one, and App Store review rejects the upload without $kit's (ITMS-91061)" >&2
+      exit 1
+    fi
+    echo "    ok: ${framework#nativelib/}/PrivacyInfo.xcprivacy"
+    MANIFESTS_FOUND=$(( MANIFESTS_FOUND + 1 ))
+  done < <(find "nativelib/$kit.xcframework" -type d -name "*.framework")
+
+  if [[ "$MANIFESTS_FOUND" -eq 0 ]]; then
+    echo "ERROR: no *.framework found in nativelib/$kit.xcframework after slimming - the release layout changed" >&2
+    exit 1
+  fi
 done
 # The zip contains the xcframework and nothing else, but guard against a stray top-level
 # file (a LICENSE or README) landing in nativelib.
