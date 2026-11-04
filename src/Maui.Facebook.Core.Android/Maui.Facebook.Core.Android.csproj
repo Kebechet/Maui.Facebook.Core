@@ -19,8 +19,8 @@
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>18.3.0.0</Version>
-    <PackageReleaseNotes>18.3.0.0: initial binding of native Facebook Android SDK 18.3.0 (facebook-core). Changelog: https://github.com/facebook/facebook-android-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <Version>19.0.1.0</Version>
+    <PackageReleaseNotes>19.0.1.0: bumped native Facebook Android SDK from 18.3.0 to 19.0.1. Upstream: Fixed: Fixed support for in-app purchase events with Google Play Billing Library 8. Changelog: https://github.com/facebook/facebook-android-sdk/blob/main/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,8 +43,8 @@
     so every facebook-core bump cross-checks the PackageReference list below. facebook-bolts is
     facebook-core's own utility library, published in lockstep at the same version; it has to ship
     inside this package because no NuGet binding for it exists.-->
-    <AndroidMavenLibrary Include="com.facebook.android:facebook-core" Version="18.3.0" />
-    <AndroidMavenLibrary Include="com.facebook.android:facebook-bolts" Version="18.3.0" Bind="false" />
+    <AndroidMavenLibrary Include="com.facebook.android:facebook-core" Version="19.0.1" />
+    <AndroidMavenLibrary Include="com.facebook.android:facebook-bolts" Version="19.0.1" Bind="false" />
   </ItemGroup>
 
   <ItemGroup>
